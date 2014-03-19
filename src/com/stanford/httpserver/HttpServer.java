@@ -18,11 +18,8 @@ import com.stanford.httpserver.request.RequestModel;
  */
 public class HttpServer {
 	
-	public static final int port = 8080;	
 	private static HttpServer instance;
-	public static String contentPath; 
 	private List<RequestModel> requestQueue;
-	public final static String SERVER_NAME = "Stanford Simple Web Server";
 	
 	//Content Types
 	public static Map<String,String> contentType = new HashMap<String,String>();
@@ -39,6 +36,30 @@ public class HttpServer {
 		contentType.put("zip", "application/zip");
 		contentType.put("mov", "application/octet-stream");
 	}
+	
+	//Keys for the settings
+	public static final String PORT = "PORT";
+	public static final String CONTENT_PATH = "CONTENT_PATH";
+	public static final String SERVER_NAME = "SERVER_NAME";
+	public static final String SERVER_IP = "SERVER_IP";
+	public static final String BACK_LOG = "BACK_LOG";
+	public static final String TIMEOUT = "TIMEOUT";
+	public static final String MAX_THREADS = "MAX_THREADS";
+	public static final String DEFAULT_PAGE = "DEFAULT_PAGE";
+	
+	//Holds Settings
+	public static Map<String,String> settings = new HashMap<String,String>();
+	static{
+		settings.put(PORT, "8080");
+		settings.put(CONTENT_PATH, "/tmp/");
+		settings.put(SERVER_NAME, "Stanford Simple Web Server");
+		settings.put(SERVER_IP, "192.168.1.2");
+		settings.put(BACK_LOG, "0");
+		settings.put(TIMEOUT, "150");
+		settings.put(MAX_THREADS, "4");
+		settings.put(DEFAULT_PAGE, "index.html");
+	}
+	
 
 	private HttpServer() {
 		requestQueue =  new ArrayList<RequestModel>();

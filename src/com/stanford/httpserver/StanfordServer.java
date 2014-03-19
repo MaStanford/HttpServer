@@ -1,6 +1,7 @@
 package com.stanford.httpserver;
 
 import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -11,9 +12,7 @@ import com.stanford.httpserver.request.RequestWorker;
 public class StanfordServer {
 
 	public static boolean running = false;
-	public static int timeout = 8000; // Time limit for data transfers.
 	public static ServerSocket serverSocket; // Our server socket
-	public static int maxThreads = 8;
 	public static int currentThreads = 0;
 
 	/**
@@ -24,15 +23,21 @@ public class StanfordServer {
 	 * @param contentPath
 	 * @return if successful
 	 */
-	public static boolean startServer(Inet4Address ipAddress, int port, int maxConnections, String contentpath,int Backlog){
+	public static boolean startServer(){
 
 		if (running) return false;
 
 		try{
-			// A tcp/ip socket (ipv4)
-			serverSocket = new ServerSocket(port, Backlog, ipAddress);
+			System.out.println("Port:" + Integer.decode(HttpServer.settings.get(HttpServer.PORT)));
+			System.out.println("Backlog:" + Integer.decode(HttpServer.settings.get(HttpServer.BACK_LOG)));
+			System.out.println("Backlog:" + (InetAddress) Inet4Address.getByName(HttpServer.settings.get(HttpServer.SERVER_IP)));
+
+			// A tcp/ip socket (ipv4) Port, BackLog, IPAddress
+			serverSocket = new ServerSocket(Integer.decode(HttpServer.settings.get(HttpServer.PORT)), 
+					Integer.decode(HttpServer.settings.get(HttpServer.BACK_LOG)), 
+					(InetAddress) InetAddress.getByName(HttpServer.settings.get(HttpServer.SERVER_IP)));
+
 			running = true;
-			HttpServer.contentPath = contentpath;
 		}
 		catch (Exception e){
 			return false; 
@@ -44,18 +49,18 @@ public class StanfordServer {
 				while(running){
 					try {
 						Socket clientSocket = serverSocket.accept();
-						clientSocket.setSoTimeout(timeout);
+						clientSocket.setSoTimeout(Integer.decode(HttpServer.settings.get(HttpServer.TIMEOUT)));
 
 						final RequestModel request = new RequestModel(clientSocket);
 						HttpServer.getInstance().addRequest(request);
 
 						//Check the threads
-						if(currentThreads > maxThreads)
+						if(currentThreads > Integer.decode(HttpServer.settings.get(HttpServer.MAX_THREADS)))
 							continue;
-						
+
 						//Process request
 						RequestWorker.process();
-						
+
 					} catch (Exception e) {
 						System.out.println("Goodbye!");
 					}
@@ -86,7 +91,7 @@ public class StanfordServer {
 	public static void main(String[] args) throws Exception {
 
 		//Start Server command
-		startServer((Inet4Address) Inet4Address.getByName("192.168.1.2"),8080,5,"/tmp/", 0);
+		startServer();
 
 		while(running){
 			System.out.println("Type Stop to stop server");
@@ -94,9 +99,7 @@ public class StanfordServer {
 			String input = in.next();
 			if(input.equals("stop")){
 				//Stop command
-
 				stop();
-
 			}
 		}
 	}

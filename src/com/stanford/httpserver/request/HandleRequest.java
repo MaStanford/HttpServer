@@ -43,11 +43,13 @@ public class HandleRequest {
 			//Check if we support the extension, otherwise 500 it
 			if (HttpServer.contentType.containsKey(request.getExtension())){
 				//Send file name to our util to see if file exists
-				if (Util.getFile(HttpServer.contentPath + request.getUrl()) != null){ 
+				if (Util.getFile(HttpServer.settings.get(HttpServer.CONTENT_PATH) + request.getUrl()) != null){ 
 					try {
 						System.out.println("Sending OK with requested file");
 						//Parse file into bytes with file util and then send it on to the response.
-						ResponseOK.sendOkResponse(request.getClientSocket(),Util.getByteFromFile(Util.getFile(HttpServer.contentPath + request.getUrl())),HttpServer.contentType.get(request.getExtension()));
+						ResponseOK.sendOkResponse(request.getClientSocket(),
+								Util.getByteFromFile(Util.getFile(HttpServer.settings.get(HttpServer.CONTENT_PATH) + request.getUrl())),
+								HttpServer.contentType.get(request.getExtension()));
 					} catch (Exception e) {
 						ResponseNotFound.notFound(request.getClientSocket());
 						e.printStackTrace();
@@ -68,17 +70,19 @@ public class HandleRequest {
 			//Checking to see if looking at root
 			if(request.getUrl().equals("/")){
 				System.out.println("Requesting root: " + request.getUrl());
-				if (Util.getFile(HttpServer.contentPath + request.getUrl() + "/index.html") != null){
+				if (Util.getFile(HttpServer.settings.get(HttpServer.CONTENT_PATH) + request.getUrl() + HttpServer.settings.get(HttpServer.DEFAULT_PAGE)) != null){
 					try {
 						System.out.println("Sending OK with default");
-						ResponseOK.sendOkResponse(request.getClientSocket(),Util.getByteFromFile(Util.getFile(HttpServer.contentPath + request.getUrl() + "/index.html")),HttpServer.contentType.get("HTML"));
+						ResponseOK.sendOkResponse(request.getClientSocket(),
+								Util.getByteFromFile(Util.getFile(HttpServer.settings.get(HttpServer.CONTENT_PATH) + request.getUrl() + "/"  + HttpServer.settings.get(HttpServer.DEFAULT_PAGE))),
+								HttpServer.contentType.get("HTML"));
 					} catch (Exception e) {
 						ResponseNotFound.notFound(request.getClientSocket());
 						e.printStackTrace();
 						return;
 					}
 				}else{
-					System.out.println("Default not found: " + HttpServer.contentPath + request.getUrl() + "/index.html");
+					System.out.println("Default not found: " + HttpServer.settings.get(HttpServer.CONTENT_PATH) + request.getUrl() + "/index.html");
 					ResponseNotFound.notFound(request.getClientSocket());
 				}
 			}else{ //Not looking at root, its pointed at dir or app

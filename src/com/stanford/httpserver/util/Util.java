@@ -47,4 +47,11 @@ public class Util {
 		}
 		return buffer;
 	}
+	
+	/**
+	 * reads the config file
+	 */
+	public static void readConfigFile(){
+		
+	}
 }

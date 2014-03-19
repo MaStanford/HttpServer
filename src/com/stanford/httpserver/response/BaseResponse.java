@@ -46,7 +46,6 @@ public class BaseResponse {
 			out.write(bHeader);
 			out.write(bContent);
 			out.close();
-			clientSocket.getInputStream().close();
 			clientSocket.close();
 		}catch(Exception e){ 
 			System.out.println("Couldn't write to clientSocket");
